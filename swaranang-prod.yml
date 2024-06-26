@@ -10,7 +10,7 @@ secret:
     key: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAw4QXdD93WiXNBE8JiUFWQ9EtSrNnb99znC8DhWDp2vO5nrg9tYzAscXptbAWElzRg+j7GIMtj9J9RLtDNZkuIeSwAN/t6mW8WGsgoYsaSC4DHvSe42rWrzCrDttG6/1GtGsPa7jAPpdelCi+kG6zaozxm/Zeky05HCW5D00K7dnfxa5Qms1RfE/YPf8C+RbKWKlOPwnxydhsNInjuZUH/RLsH2kogtSGWwUO8zAY1T348of7zcd2lbJBwHsx62y4FpOLnuJJADSTNFDmxLkKIniTy3T70bq4nZlLkBmRXulZoHfOP6CdqFJjoCvDpjP1md02kDWRroF5q7p/V4Cn2QIDAQAB"
 
 accounts:
-  message: "Welcome from PRODUCTION"
+  message: "Welcome from PROD"
   contactDetails:
     name: "Sydney - Developer"
     email: "{cipher}64a53d832063a1cab2d2525138af867eb33759bd574ce26050b7c0d5ecc29b5e05c1940e9b408828c4116bf68473531e"
