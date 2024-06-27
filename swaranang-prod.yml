@@ -13,7 +13,7 @@ accounts:
   message: "Welcome from PROD"
   contactDetails:
     name: "Sydney - Developer"
-    email: "bs.molobela@gmail.com"
+    email: "{cipher}64a53d832063a1cab2d2525138af867eb33759bd574ce26050b7c0d5ecc29b5e05c1940e9b408828c4116bf68473531e"
   onCallSupport:
     - (+27) 81-247-1137
     - (+27) 68-076-7600
