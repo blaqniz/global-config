@@ -10,7 +10,7 @@ secret:
     key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAw4QXdD93WiXNBE8JiUFWQ9EtSrNnb99znC8DhWDp2vO5nrg9tYzAscXptbAWElzRg+j7GIMtj9J9RLtDNZkuIeSwAN/t6mW8WGsgoYsaSC4DHvSe42rWrzCrDttG6/1GtGsPa7jAPpdelCi+kG6zaozxm/Zeky05HCW5D00K7dnfxa5Qms1RfE/YPf8C+RbKWKlOPwnxydhsNInjuZUH/RLsH2kogtSGWwUO8zAY1T348of7zcd2lbJBwHsx62y4FpOLnuJJADSTNFDmxLkKIniTy3T70bq4nZlLkBmRXulZoHfOP6CdqFJjoCvDpjP1md02kDWRroF5q7p/V4Cn2QIDAQAB
 
 accounts:
-  message: "Welcome from LOCAL WEBHOOK"
+  message: "Welcome from LOCAL V1"
   contactDetails:
     name: "Enoo - Developer"
     email: "enoo.komana@gmail.com"
