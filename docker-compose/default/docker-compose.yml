@@ -1,0 +1,57 @@
+services:
+  rabbit:
+    image: rabbitmq:3.12-management
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
+  configserver:
+    image: "nizen25/configserver:1.0"
+    container_name: configserver-ms
+    build: .
+    restart: no
+    ports:
+      - "9000:9000"
+      - "5001:5001"
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:9000/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    extends:
+      file: common-config.yml
+      service: microservice-base-config
+
+
+  swaranang:
+    image: "nizen25/swaranang-magorula-society:1.0"
+    container_name: swaranang-ms
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    depends_on:
+      configserver:
+        condition: service_healthy
+    environment:
+      SPRING_APPLICATION_NAME: "swaranang"
+    extends:
+      file: common-config.yml
+      service: microservice-configserver-config
+
+networks:
+  nizen25:
+    driver: "bridge"
