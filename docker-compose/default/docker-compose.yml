@@ -1,4 +1,14 @@
 services:
+  swaranangdb:
+    container_name: swaranangdb
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: swaranang_db
+    extends:
+      file: common-config.yml
+      service: microservice-db-config
+
   rabbit:
     image: rabbitmq:3.12-management
     container_name: rabbit-mq
