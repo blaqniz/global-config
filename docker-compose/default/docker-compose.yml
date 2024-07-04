@@ -5,6 +5,12 @@ services:
       - 3306:3306
     environment:
       MYSQL_DATABASE: swaranang_db
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root --password=root" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     extends:
       file: common-config.yml
       service: microservice-db-config
@@ -17,7 +23,7 @@ services:
       - "5672:5672"
       - "15672:15672"
     healthcheck:
-      test: rabbitmq-diagnostics check_port_connectivity
+      test: ["CMD-SHELL", "rabbitmq-diagnostics check_port_connectivity"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -29,7 +35,6 @@ services:
   configserver:
     image: "nizen25/configserver:1.0"
     container_name: configserver-ms
-    build: .
     restart: no
     ports:
       - "9000:9000"
