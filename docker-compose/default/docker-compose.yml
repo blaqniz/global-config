@@ -68,6 +68,23 @@ services:
       file: common-config.yml
       service: microservice-configserver-config
 
+  gqmessaging:
+    image: "nizen25/gq-messaging-api:1.0"
+    container_name: gq-messaging-ms
+    ports:
+      - "1000:1000"
+      - "4004:4004"
+    environment:
+      SPRING_APPLICATION_NAME: "gq-messaging-api"
+      SPRING_PROFILES_ACTIVE: "default"
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+
 networks:
   nizen25:
     driver: "bridge"
