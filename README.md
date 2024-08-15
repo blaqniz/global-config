@@ -1,8 +1,4 @@
-# global-config
-Global Property Configuration
-
 import javax.xml.namespace.QName;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ws.WebServiceMessage;
@@ -10,71 +6,71 @@ import org.springframework.ws.client.core.support.WebServiceGatewaySupport;
 import org.springframework.ws.soap.SoapHeaderElement;
 import org.springframework.ws.soap.client.core.SoapActionCallback;
 import org.springframework.ws.soap.saaj.SaajSoapMessage;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import za.co.nednet.it.contracts.infrastructure._2008._09.enterprisecontext.EnterpriseContextType;
-import za.co.nednet.it.contracts.service.biz.informationandtechnologymanagement.businesscaseinformation.v2.RetrieveBusinessCaseDetailsRequestWrapperType;
-import za.co.nednet.it.contracts.service.biz.informationandtechnologymanagement.businesscaseinformation.v2.RetrieveBusinessCaseDetailsResponseWrapperType;
 
-public class BusinessCaseManagementClient extends WebServiceGatewaySupport {
+public class GenericSoapClient<T, R> extends WebServiceGatewaySupport {
 
-    private static final Logger log = LoggerFactory.getLogger(BusinessCaseManagementClient.class);
+    private static final Logger log = LoggerFactory.getLogger(GenericSoapClient.class);
 
-    private static final String ACTION = "http://contracts.it.nednet.co.za/service/biz/informationandtechnologymanagement/BusinessCaseInformation/v2/RetrieveBusinessCaseDetails";
-    private static final String NAMESPACE_URI = "http://contracts.it.nednet.co.za/service/biz/informationandtechnologymanagement/BusinessCaseInformation/v2";
-    private static final String HEADER_URI = "http://contracts.it.nednet.co.za/Infrastructure/2008/09/EnterpriseContext";
+    private final String action;
+    private final String namespaceUri;
+    private final String headerUri;
+    private final Class<T> requestClass;
+    private final Class<R> responseClass;
+    private final Class<?> headerClass;
 
-    public RetrieveBusinessCaseDetailsResponseWrapperType RetrieveBusinessCaseDetails(RetrieveBusinessCaseDetailsRequestWrapperType request, SoapHeaderElement soapHeader) {
+    public GenericSoapClient(String action, String namespaceUri, String headerUri, Class<T> requestClass, Class<R> responseClass, Class<?> headerClass) {
+        this.action = action;
+        this.namespaceUri = namespaceUri;
+        this.headerUri = headerUri;
+        this.requestClass = requestClass;
+        this.responseClass = responseClass;
+        this.headerClass = headerClass;
+    }
 
-        log.info("Service call to BusinessCaseManagement :" + this.getDefaultUri());
+    public R sendRequest(T request, SoapHeaderElement soapHeader) {
+        log.info("Service call to SOAP client: " + this.getDefaultUri());
 
-        JAXBElement<RetrieveBusinessCaseDetailsRequestWrapperType> cleanRQ = new JAXBElement<RetrieveBusinessCaseDetailsRequestWrapperType>(new QName(NAMESPACE_URI,
-        "RetrieveBusinessCaseDetails"),
-        RetrieveBusinessCaseDetailsRequestWrapperType.class, request);
+        JAXBElement<T> cleanRequest = new JAXBElement<>(new QName(namespaceUri, requestClass.getSimpleName()), requestClass, request);
 
-        SoapActionCallback requestCallback = new SoapActionCallback(ACTION)
-        {
-            public void doWithMessage(WebServiceMessage message)
-            {
+        SoapActionCallback requestCallback = new SoapActionCallback(action) {
+            public void doWithMessage(WebServiceMessage message) {
                 try {
+                    JAXBContext context = JAXBContext.newInstance(headerClass);
+                    Unmarshaller unmarshaller = context.createUnmarshaller();
+                    JAXBElement<?> ecHeader = (JAXBElement<?>) unmarshaller.unmarshal(soapHeader.getSource());
 
-                // create an unmarshaller
-                JAXBContext context = JAXBContext.newInstance(za.co.nednet.it.contracts.infrastructure._2008._09.enterprisecontext.ObjectFactory.class);
-                Unmarshaller unmarshaller;
-                    unmarshaller = context.createUnmarshaller();
+                    Object enterpriseContext = ecHeader.getValue();
+                    SaajSoapMessage soapMessage = (SaajSoapMessage) message;
 
+                    JAXBContext jaxbContext = JAXBContext.newInstance(headerClass);
+                    JAXBElement<?> cleanEC = new JAXBElement<>(new QName(headerUri, enterpriseContext.getClass().getSimpleName()), (Class<Object>) enterpriseContext.getClass(), enterpriseContext);
+                    jaxbContext.createMarshaller().marshal(cleanEC, soapMessage.getSoapHeader().getResult());
 
-                @SuppressWarnings("unchecked")
-                JAXBElement<EnterpriseContextType> ecHeader = (JAXBElement<EnterpriseContextType>) unmarshaller.unmarshal(soapHeader.getSource());
-
-                    EnterpriseContextType enterpriseContext = ecHeader.getValue();
-
-                //Create Response Body and Header
-                SaajSoapMessage soapMessage = (SaajSoapMessage) message;
-
-                //Send Response back (Classes marshalled)
-                JAXBContext jaxbContext = JAXBContext.newInstance(EnterpriseContextType.class);
-                JAXBElement<EnterpriseContextType> cleanEC = new JAXBElement<>(new QName(HEADER_URI, EnterpriseContextType.class.getSimpleName()),EnterpriseContextType.class, enterpriseContext);
-                jaxbContext.createMarshaller().marshal(cleanEC, soapMessage.getSoapHeader().getResult());
                 } catch (JAXBException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-
             }
         };
 
-
-        //RetrieveBusinessCaseDetailsResponseWrapperType response = (RetrieveBusinessCaseDetailsResponseWrapperType) getWebServiceTemplate()
-        //.marshalSendAndReceive(cleanRQ, requestCallback);
-
-        Object response = getWebServiceTemplate().marshalSendAndReceive(cleanRQ, requestCallback);
-
-        //return (RetrieveBusinessCaseDetailsResponseWrapperType) ((JAXBElement<RetrieveBusinessCaseDetailsResponseWrapperType>) response).getValue();
-        return (RetrieveBusinessCaseDetailsResponseWrapperType) ((JAXBElement<RetrieveBusinessCaseDetailsResponseWrapperType>) response).getValue();
+        Object response = getWebServiceTemplate().marshalSendAndReceive(cleanRequest, requestCallback);
+        return (R) ((JAXBElement<R>) response).getValue();
     }
-
 }
+
+You can instantiate and use the GenericSoapClient like this:
+
+GenericSoapClient<RetrieveBusinessCaseDetailsRequestWrapperType, RetrieveBusinessCaseDetailsResponseWrapperType> client =
+    new GenericSoapClient<>(
+        "http://example.com/action",
+        "http://example.com/namespace",
+        "http://example.com/headerUri",
+        RetrieveBusinessCaseDetailsRequestWrapperType.class,
+        RetrieveBusinessCaseDetailsResponseWrapperType.class,
+        EnterpriseContextType.class
+    );
+
+RetrieveBusinessCaseDetailsResponseWrapperType response = client.sendRequest(request, soapHeader);
