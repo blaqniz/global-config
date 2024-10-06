@@ -52,7 +52,6 @@ services:
       file: common-config.yml
       service: microservice-base-config
 
-
   swaranang:
     image: "nizen25/swaranang-magorula-society:1.0"
     container_name: swaranang-ms
@@ -117,6 +116,8 @@ services:
     depends_on:
       gqeventsdb:
         condition: service_healthy
+    env_file:
+      - C:/Dev/Config/.env
 
 networks:
   nizen25:
