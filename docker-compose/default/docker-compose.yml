@@ -67,58 +67,6 @@ services:
       file: common-config.yml
       service: microservice-configserver-config
 
-  gqmessaging:
-    image: "nizen25/gq-messaging-api:1.0"
-    container_name: gq-messaging-ms
-    ports:
-      - "1000:1000"
-      - "4004:4004"
-    environment:
-      SPRING_APPLICATION_NAME: "gq-messaging-api"
-      SPRING_PROFILES_ACTIVE: "default"
-    extends:
-      file: common-config.yml
-      service: network-deploy-service
-    deploy:
-      resources:
-        limits:
-          memory: 700m
-
-  gqeventsdb:
-    container_name: gqeventsdb
-    ports:
-      - 3308:3306
-    environment:
-      MYSQL_DATABASE: gq_event_tickets_db
-    healthcheck:
-      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root --password=root" ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
-    extends:
-      file: common-config.yml
-      service: microservice-db-config
-
-  gqevents:
-    image: "nizen25/gq-event-management:1.0"
-    container_name: gq-events-ms
-    ports:
-      - "8000:8000"
-      - "5006:5006"
-    extends:
-      file: common-config.yml
-      service: network-deploy-service
-    deploy:
-      resources:
-        limits:
-          memory: 700m
-    depends_on:
-      gqeventsdb:
-        condition: service_healthy
-    env_file:
-      - C:/Dev/Config/.env
-
 networks:
   nizen25:
     driver: "bridge"
